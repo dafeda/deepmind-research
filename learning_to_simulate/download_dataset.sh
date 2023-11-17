@@ -1,6 +1,5 @@
 #!/bin/bash
-# Copyright 2020 Deepmind Technologies Limited.
-#
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,8 +24,23 @@ OUTPUT_DIR="${2}/${DATASET_NAME}"
 
 BASE_URL="https://storage.googleapis.com/learning-to-simulate-complex-physics/Datasets/${DATASET_NAME}/"
 
-mkdir -p ${OUTPUT_DIR}
+mkdir -p "${OUTPUT_DIR}"
+
+download() {
+    local url="${1}"
+    local output_path="${2}"
+
+    if command -v wget > /dev/null; then
+        wget -O "${output_path}" "${url}"
+    elif command -v curl > /dev/null; then
+        curl -o "${output_path}" "${url}"
+    else
+        echo "Error: wget or curl is required for downloading."
+        exit 1
+    fi
+}
+
 for file in metadata.json train.tfrecord valid.tfrecord test.tfrecord
 do
-wget -O "${OUTPUT_DIR}/${file}" "${BASE_URL}${file}"
+    download "${BASE_URL}${file}" "${OUTPUT_DIR}/${file}"
 done
